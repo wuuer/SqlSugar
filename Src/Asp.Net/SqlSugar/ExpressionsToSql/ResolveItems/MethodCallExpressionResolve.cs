@@ -598,7 +598,7 @@ namespace SqlSugar
                         return this.Context.DbMehtods.ToInt32(model);
                     case "ToInt64":
                         return this.Context.DbMehtods.ToInt64(model);
-                    case "ToDate":
+                    case "ToDate": 
                         return this.Context.DbMehtods.ToDate(model);
                     case "ToDateTime":
                         return this.Context.DbMehtods.ToDateTime(model);
