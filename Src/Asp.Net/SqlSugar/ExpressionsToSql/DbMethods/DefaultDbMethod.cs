@@ -233,7 +233,7 @@ namespace SqlSugar
             return string.Format(" CAST({0} AS BIT)", parameter.MemberName);
         }
 
-        public string ToDate(MethodCallExpressionModel model)
+        public virtual string ToDate(MethodCallExpressionModel model)
         {
             var parameter = model.Args[0];
             return string.Format(" CAST({0} AS DATE)", parameter.MemberName);
