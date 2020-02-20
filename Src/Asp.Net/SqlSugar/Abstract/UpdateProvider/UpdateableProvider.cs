@@ -648,7 +648,7 @@ namespace SqlSugar
                     }
                     else if (versionColumn.PropertyInfo.PropertyType.IsIn(UtilConstants.DateType))
                     {
-                        if (dbVersion.ObjToDate() != currentVersion.ObjToDate())
+                        if (dbVersion.ObjToDateTime() != currentVersion.ObjToDateTime())
                         {
                             throw new VersionExceptions(string.Format("UpdateVersionValidation {0} Not the latest version ", versionColumn.PropertyName));
                         }

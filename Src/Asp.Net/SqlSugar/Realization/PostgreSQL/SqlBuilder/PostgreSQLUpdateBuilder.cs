@@ -45,7 +45,7 @@ namespace SqlSugar
                 var type = value.GetType();
                 if (type == UtilConstants.DateType)
                 {
-                    var date = value.ObjToDate();
+                    var date = value.ObjToDateTime();
                     if (date < Convert.ToDateTime("1900-1-1"))
                     {
                         date = Convert.ToDateTime("1900-1-1");

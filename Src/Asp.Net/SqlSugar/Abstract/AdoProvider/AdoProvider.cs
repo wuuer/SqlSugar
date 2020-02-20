@@ -688,7 +688,7 @@ namespace SqlSugar
         }
         public virtual DateTime GetDateTime(string sql, params SugarParameter[] parameters)
         {
-            return GetScalar(sql, parameters).ObjToDate();
+            return GetScalar(sql, parameters).ObjToDateTime();
         }
         public virtual DateTime GetDateTime(string sql, List<SugarParameter> parameters)
         {
@@ -712,7 +712,7 @@ namespace SqlSugar
         public virtual async Task<DateTime> GetDateTimeAsync(string sql, params SugarParameter[] parameters)
         {
             var list = await GetScalarAsync(sql, parameters);
-            return list.ObjToDate();
+            return list.ObjToDateTime();
         }
         public virtual Task<DateTime> GetDateTimeAsync(string sql, List<SugarParameter> parameters)
         {

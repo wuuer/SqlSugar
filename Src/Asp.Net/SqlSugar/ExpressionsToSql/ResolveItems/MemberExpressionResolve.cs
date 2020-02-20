@@ -281,7 +281,7 @@ namespace SqlSugar
             var isConst = parameter.CommonTempData.GetType() == UtilConstants.DateType;
             if (isConst)
             {
-                AppendValue(parameter, isLeft, parameter.CommonTempData.ObjToDate().Date);
+                AppendValue(parameter, isLeft, parameter.CommonTempData.ObjToDateTime().Date);
             }
             else
             {
@@ -464,7 +464,7 @@ namespace SqlSugar
                              new MethodCallExpressionArgs() { MemberName=value, MemberValue=value },
                          }
             };
-            return this.Context.DbMehtods.ToDate(pars);
+            return this.Context.DbMehtods.ToDateTime(pars);
         }
 
         private void SettingParameters(ExpressionParameter parameter, out ExpressionParameter baseParameter, out MemberExpression expression, out bool? isLeft, out bool isSetTempData, out bool isValue, out bool isValueBool, out bool isLength, out bool isDateValue, out bool isHasValue, out bool isDateDate, out bool isMemberValue, out bool isSingle, out bool fieldIsBool, out bool isSelectField, out bool isField)

@@ -91,7 +91,7 @@ namespace SqlSugar
             return string.Format(" CAST({0} AS DECIMAL(18,4))", parameter.MemberName);
         }
 
-        public override string ToDate(MethodCallExpressionModel model)
+        public override string ToDateTime(MethodCallExpressionModel model)
         {
             var parameter = model.Args[0];
             return string.Format(" DATETIME({0})", parameter.MemberName);

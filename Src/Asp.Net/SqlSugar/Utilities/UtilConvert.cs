@@ -89,7 +89,17 @@ namespace SqlSugar
             return reval;
         }
 
-        public static DateTime ObjToDate(this object thisValue, DateTime errorValue)
+        public static DateTime ObjToDateTime(this object thisValue)
+        {
+            DateTime reval = DateTime.MinValue;
+            if (thisValue != null && thisValue != DBNull.Value && DateTime.TryParse(thisValue.ToString(), out reval))
+            {
+                reval = Convert.ToDateTime(thisValue);
+            }
+            return reval;
+        }
+
+        public static DateTime ObjToDateTime(this object thisValue, DateTime errorValue)
         {
             DateTime reval = DateTime.MinValue;
             if (thisValue != null && thisValue != DBNull.Value && DateTime.TryParse(thisValue.ToString(), out reval))
@@ -98,6 +108,8 @@ namespace SqlSugar
             }
             return errorValue;
         }
+
+
 
         public static bool ObjToBool(this object thisValue)
         {

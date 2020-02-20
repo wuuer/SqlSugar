@@ -278,7 +278,7 @@ namespace OrmTest.UnitTest
         private void ToDate()
         {
             var x2 = DateTime.Now;
-            Expression<Func<Student, bool>> exp = it => SqlFunc.ToDate("2015-1-1") == x2;
+            Expression<Func<Student, bool>> exp = it => SqlFunc.ToDateTime("2015-1-1") == x2;
             SqlServerExpressionContext expContext = new SqlServerExpressionContext();
             expContext.Resolve(exp, ResolveExpressType.WhereSingle);
             var value = expContext.Result.GetString();

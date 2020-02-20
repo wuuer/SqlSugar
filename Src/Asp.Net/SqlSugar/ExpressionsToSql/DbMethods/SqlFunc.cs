@@ -88,12 +88,19 @@ namespace SqlSugar
         public static string MergeString(string value1, string value2, string value3, string value4, string value5, string value6,string value7) { throw new NotSupportedException("Can only be used in expressions"); }
         public static int ToInt32(object value) { return value.ObjToInt(); }
         public static long ToInt64(object value) { return Convert.ToInt64(value); }
+
+        /// <summary>
+        /// yyyy-MM-dd
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static DateTime ToDate(object value) { return value.ObjToDate(); }
         /// <summary>
         /// yyyy-MM-dd HH:mm:ss.fff
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static DateTime ToDate(object value) { return value.ObjToDate(); }
+        public static DateTime ToDateTime(object value) { return value.ObjToDateTime(); }
         /// <summary>
         ///HH:mm:ss 
         /// </summary>
