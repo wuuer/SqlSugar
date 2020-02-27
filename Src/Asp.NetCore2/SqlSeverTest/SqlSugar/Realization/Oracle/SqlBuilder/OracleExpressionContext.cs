@@ -127,8 +127,12 @@ namespace SqlSugar
             var parameter = model.Args[0];
             return string.Format(" CAST({0} AS VARCHAR2(4000))", parameter.MemberName);
         }
-
         public override string ToDate(MethodCallExpressionModel model)
+        {
+            var parameter = model.Args[0];
+            return string.Format(" to_date({0},'yyyy-mm-dd')", parameter.MemberName);
+        }
+        public override string ToDateTime(MethodCallExpressionModel model)
         {
             var parameter = model.Args[0];
             return string.Format(" to_date({0},'yyyy-mm-dd hh24:mi:ss')", parameter.MemberName);

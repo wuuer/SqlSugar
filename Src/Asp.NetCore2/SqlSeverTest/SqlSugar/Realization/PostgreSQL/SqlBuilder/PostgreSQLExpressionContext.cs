@@ -167,8 +167,12 @@ namespace SqlSugar
             var parameter3 = model.Args[2];
             return string.Format(" (date_part('{2}',{0}-{1})=0) ", parameter.MemberName, parameter2.MemberName, parameter3.MemberValue);
         }
-
         public override string ToDate(MethodCallExpressionModel model)
+        {
+            var parameter = model.Args[0];
+            return string.Format(" CAST({0} AS date)", parameter.MemberName);
+        }
+        public override string ToDateTime(MethodCallExpressionModel model)
         {
             var parameter = model.Args[0];
             return string.Format(" CAST({0} AS timestamp)", parameter.MemberName);
