@@ -138,12 +138,23 @@ namespace SqlSugar
         }
         public static T GetConvertValue<T>(this IDataRecord dr, int i)
         {
-            if (dr.IsDBNull(i))
+            try
             {
-                return default(T);
+                if (dr.IsDBNull(i))
+                {
+                    return default(T);
+                }
+                var result = dr.GetValue(i);
+                return UtilMethods.To<T>(result);
             }
-            var result = dr.GetValue(i);
-            return UtilMethods.To<T>(result);
+            catch (Exception ex)
+            {
+                if (dr.GetFieldType(i) == UtilConstants.DateType)
+                {
+                    return UtilMethods.To<T>(dr.GetConvertDouble(i));
+                }
+                throw new Exception(ex.Message);
+            }
         }
 
         public static long? GetConvetInt64(this IDataRecord dr, int i)
@@ -247,6 +258,14 @@ namespace SqlSugar
                 return default(T);
             var value = obj.ObjToString();
             return new SerializeService().DeserializeObject<T>(value);
+        }
+        public static T GetArray<T>(this IDataReader dr, int i)
+        {
+            //pgsql
+            var obj = dr.GetValue(i);
+            if (obj == null)
+                return default(T);
+            return  (T)obj;
         }
 
         public static Nullable<T> GetConvertEnum_Null<T>(this IDataReader dr, int i) where T : struct

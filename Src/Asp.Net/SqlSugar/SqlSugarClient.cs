@@ -61,11 +61,6 @@ namespace SqlSugar
         #endregion
 
         #region SimpleClient
-        public SimpleClient GetSimpleClient()
-        {
-            return this.Context.GetSimpleClient();
-        }
-
         public SimpleClient<T> GetSimpleClient<T>() where T : class, new()
         {
             return this.Context.GetSimpleClient<T>();
@@ -538,15 +533,18 @@ namespace SqlSugar
         #region TenantManager
         public void ChangeDatabase(string configId)
         {
+            var isLog = _Context.Ado.IsEnableLogEvent;
             Check.Exception(!_AllClients.Any(it => it.ConnectionConfig.ConfigId == configId), "ConfigId was not found {0}", configId);
             InitTenant(_AllClients.First(it => it.ConnectionConfig.ConfigId == configId));
             if (this._IsAllTran)
                 this.Ado.BeginTran();
             if (this._IsOpen)
                 this.Open();
+            _Context.Ado.IsEnableLogEvent = isLog;
         }
         public void ChangeDatabase(Func<ConnectionConfig, bool> changeExpression)
         {
+            var isLog = _Context.Ado.IsEnableLogEvent;
             var allConfigs = _AllClients.Select(it => it.ConnectionConfig);
             Check.Exception(!allConfigs.Any(changeExpression), "changeExpression was not found {0}", changeExpression.ToString());
             InitTenant(_AllClients.First(it => it.ConnectionConfig == allConfigs.First(changeExpression)));
@@ -554,6 +552,7 @@ namespace SqlSugar
                 this.Ado.BeginTran();
             if (this._IsOpen)
                 this.Open();
+            _Context.Ado.IsEnableLogEvent = isLog;
         }
         public void BeginTran()
         {
@@ -897,6 +896,11 @@ namespace SqlSugar
         #endregion
 
         #region Obsolete
+        [Obsolete("Use GetSimpleClient<T>")]
+        public SimpleClient GetSimpleClient()
+        {
+            return this.Context.GetSimpleClient();
+        }
         [Obsolete("Use EntityMaintenance")]
         public EntityMaintenance EntityProvider { get { return this.Context.EntityProvider; } set { this.Context.EntityProvider = value; } }
         [Obsolete("Use Utilities")]

@@ -51,8 +51,8 @@ namespace SqlSugar
                     WHERE syscolumns.id IN
                         (SELECT id
                          FROM sysobjects
-                         WHERE xtype IN('u',
-                                        'v') )
+                         WHERE upper(xtype) IN('U',
+                                        'V') )
                       AND (systypes.name <> 'sysname')
                       AND sysobjects.name='{0}'
                       AND systypes.name<>'geometry'
@@ -249,7 +249,7 @@ namespace SqlSugar
         {
             get
             {
-                return "CREATE NONCLUSTERED INDEX Index_{0}_{2} ON {0}({1})";
+                return "CREATE {3} NONCLUSTERED INDEX Index_{0}_{2} ON {0}({1})";
             }
         }
         protected override string AddDefaultValueSql

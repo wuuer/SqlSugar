@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 
 namespace SqlSugar
 {
@@ -33,8 +35,51 @@ namespace SqlSugar
                 return "INSERT INTO {0} ({1})";
             }
         }
+        public override string ToSqlString()
+        {
+            if (IsNoInsertNull)
+            {
+                DbColumnInfoList = DbColumnInfoList.Where(it => it.Value != null).ToList();
+            }
+            var groupList = DbColumnInfoList.GroupBy(it => it.TableId).ToList();
+            var isSingle = groupList.Count() == 1;
+            string columnsString = string.Join(",", groupList.First().Select(it => Builder.GetTranslationColumnName(it.DbColumnName)));
+            if (isSingle)
+            {
+                string columnParametersString = string.Join(",", this.DbColumnInfoList.Select(it => Builder.SqlParameterKeyWord + it.DbColumnName));
+                return string.Format(SqlTemplate, GetTableNameString, columnsString, columnParametersString);
+            }
+            else
+            {
+                StringBuilder batchInsetrSql = new StringBuilder();
+                batchInsetrSql.Append("INSERT INTO " + GetTableNameString + " ");
+                batchInsetrSql.Append("(");
+                batchInsetrSql.Append(columnsString);
+                batchInsetrSql.Append(") VALUES");
+                string insertColumns = "";
+                int i = 0;
+                foreach (var item in groupList)
+                {
+                    batchInsetrSql.Append("(");
+                    insertColumns = string.Join(",", item.Select(it => FormatValue(i,it.DbColumnName,it.Value)));
+                    batchInsetrSql.Append(insertColumns);
+                    if (groupList.Last() == item)
+                    {
+                        batchInsetrSql.Append(") ");
+                    }
+                    else
+                    {
+                        batchInsetrSql.Append("),  ");
+                    }
+                    i++;
+                }
 
-        public override object FormatValue(object value)
+                batchInsetrSql.AppendLine(";SELECT LAST_INSERT_ROWID();");
+                var result = batchInsetrSql.ToString();
+                return result;
+            }
+        }
+        public object FormatValue(int i,string name,object value)
         {
             if (value == null)
             {
@@ -58,8 +103,9 @@ namespace SqlSugar
                 }
                 else if (type == UtilConstants.ByteArrayType)
                 {
-                    string bytesString = "0x" + BitConverter.ToString((byte[])value);
-                    return bytesString;
+                    var parameterName = this.Builder.SqlParameterKeyWord + name + i;
+                    this.Parameters.Add(new SugarParameter(parameterName, value));
+                    return parameterName;
                 }
                 else if (type == UtilConstants.BoolType)
                 {

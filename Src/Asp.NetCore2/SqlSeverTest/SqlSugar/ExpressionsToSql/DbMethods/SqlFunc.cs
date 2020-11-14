@@ -65,6 +65,10 @@ namespace SqlSugar
         {
             return thisValue.Equals(parameterValue);
         }
+        public  static bool EqualsNull(object thisValue, object parameterValue)
+        {
+            return thisValue.Equals(parameterValue);
+        }
         public static bool DateIsSame(DateTime date1, DateTime date2)
         {
             return date1.ToString("yyyy-MM-dd") == date2.ToString("yyyy-MM-dd");
@@ -101,6 +105,7 @@ namespace SqlSugar
         /// <returns></returns>
         public static TimeSpan ToTime(object value) { throw new NotSupportedException("Can only be used in expressions"); }
         public static string ToString(object value) { return value.ObjToString(); }
+        public static string ToVarchar(object value) { return value.ObjToString(); }
         public static decimal ToDecimal(object value) { return value.ObjToDecimal(); }
         public static Guid ToGuid(object value) { return Guid.Parse(value.ObjToString()); }
         public static double ToDouble(object value) { return value.ObjToMoney(); }
@@ -132,5 +137,7 @@ namespace SqlSugar
         public static Subqueryable<T> Subqueryable<T>() where T:class,new(){ throw new NotSupportedException("Can only be used in expressions");}
         public static CaseThen  IF(bool condition) { throw new NotSupportedException("Can only be used in expressions"); }
         public static int CharIndex(string findChar,string searchValue) { throw new NotSupportedException("Can only be used in expressions"); }
+        public static int BitwiseAnd(int left, int right) { throw new NotSupportedException("Can only be used in expressions"); }
+        public static int BitwiseInclusiveOR(int left, int right) { throw new NotSupportedException("Can only be used in expressions"); }
     }
 }

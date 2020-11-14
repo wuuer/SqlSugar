@@ -131,6 +131,14 @@ namespace SqlSugar
                     {
                         parameterName = parameterName.Replace(".", "_");
                     }
+                    if (parameterName.Contains("["))
+                    {
+                        parameterName = parameterName.Replace("[", "_");
+                    }
+                    if (parameterName.Contains("]"))
+                    {
+                        parameterName = parameterName.Replace("]", "_");
+                    }
                     switch (item.ConditionalType)
                     {
                         case ConditionalType.Equal:
@@ -198,6 +206,17 @@ namespace SqlSugar
                             {
                                 builder.AppendFormat(temp, type, item.FieldName.ToSqlFilter(), "<>", parameterName);
                                 parameters.Add(new SugarParameter(parameterName, item.FieldValue));
+                            }
+                            break;
+                        case ConditionalType.EqualNull:
+                            if (GetFieldValue(item) == null)
+                            {
+                                builder.AppendFormat(temp, type, item.FieldName.ToSqlFilter(), "  IS ", " NULL ");
+                            }
+                            else
+                            {
+                                builder.AppendFormat(temp, type, item.FieldName.ToSqlFilter(), "=", parameterName);
+                                parameters.Add(new SugarParameter(parameterName, GetFieldValue(item)));
                             }
                             break;
                         default:

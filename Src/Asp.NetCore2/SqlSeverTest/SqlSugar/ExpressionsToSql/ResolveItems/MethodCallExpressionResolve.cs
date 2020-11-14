@@ -448,7 +448,7 @@ namespace SqlSugar
                     methodCallExpressionArgs.IsMember = false;
                 }
             }
-            if (IsDateDate(item)||IsDateValue(item))
+            if (IsDateDate(item) || IsDateValue(item))
             {
                 methodCallExpressionArgs.IsMember = true;
             }
@@ -473,22 +473,24 @@ namespace SqlSugar
 
         private static bool IsDateDate(Expression item)
         {
-            return item.Type == UtilConstants.DateType && item is MemberExpression && (item as MemberExpression).Member.Name == "Date"&&item.ToString()!= "DateTime.Now.Date";
+            return item.Type == UtilConstants.DateType && item is MemberExpression && (item as MemberExpression).Member.Name == "Date" && item.ToString() != "DateTime.Now.Date";
         }
         private static bool IsDateValue(Expression item)
         {
-            return item.Type == UtilConstants.IntType && 
-                                    item is MemberExpression && 
-                                    (item as MemberExpression).Expression!=null&&
-                                    (item as MemberExpression).Expression.Type==UtilConstants.DateType&&
-                                    (item as MemberExpression).Expression is MemberExpression&&
-                                    ((item as MemberExpression).Expression as MemberExpression).Member.Name=="Value";
+            return item.Type == UtilConstants.IntType &&
+                                    item is MemberExpression &&
+                                    (item as MemberExpression).Expression != null &&
+                                    (item as MemberExpression).Expression.Type == UtilConstants.DateType &&
+                                    (item as MemberExpression).Expression is MemberExpression &&
+                                    ((item as MemberExpression).Expression as MemberExpression).Member.Name == "Value";
         }
 
         private object GetMethodValue(string name, MethodCallExpressionModel model)
         {
             if (IsExtMethod(name))
             {
+                model.Expression = this.Expression;
+                model.BaseExpression = this.BaseParameter.CurrentExpression;
                 DbType type = DbType.SqlServer;
                 if (this.Context is SqlServerExpressionContext)
                     type = DbType.SqlServer;
@@ -502,7 +504,7 @@ namespace SqlSugar
             }
             else
             {
-                if (name == "Parse" && TempParseType.IsIn(UtilConstants.GuidType))
+                if (name == "Parse" && TempParseType.IsIn(UtilConstants.GuidType) && model.Args != null && model.Args.Count() > 1)
                 {
                     name = "Equals";
                 }
@@ -549,15 +551,15 @@ namespace SqlSugar
                                 model.Args[0].MemberValue = first.Value;
                             }
                         }
-                        model.Data =this.Context.SqlParameterKeyWord+"INP_"+this.Context.ParameterIndex;
+                        model.Data = this.Context.SqlParameterKeyWord + "INP_" + this.Context.ParameterIndex;
                         this.Context.ParameterIndex++;
                         if (model.Args[0].MemberValue.HasValue())
                         {
                             var inValueIEnumerable = (IEnumerable)model.Args[0].MemberValue;
                             int i = 0;
-                            foreach (var item in inValueIEnumerable) 
+                            foreach (var item in inValueIEnumerable)
                             {
-                                this.Context.Parameters.Add(new SugarParameter(model.Data+"_"+i,item));
+                                this.Context.Parameters.Add(new SugarParameter(model.Data + "_" + i, item));
                                 i++;
                             }
                         }
@@ -566,6 +568,8 @@ namespace SqlSugar
                         return caResult2;
                     case "Equals":
                         return this.Context.DbMehtods.Equals(model);
+                    case "EqualsNull":
+                        return this.Context.DbMehtods.EqualsNull(model);
                     case "DateIsSame":
                         if (model.Args.Count == 2)
                             return this.Context.DbMehtods.DateIsSameDay(model);
@@ -611,6 +615,8 @@ namespace SqlSugar
                         }
                         Check.Exception(model.Args.Count > 1, "ToString (Format) is not supported, Use ToString().If time formatting can be used it.Date.Year+\"-\"+it.Data.Month+\"-\"+it.Date.Day ");
                         return this.Context.DbMehtods.ToString(model);
+                    case "ToVarchar":
+                        return this.Context.DbMehtods.ToVarchar(model);
                     case "ToDecimal":
                         return this.Context.DbMehtods.ToDecimal(model);
                     case "ToGuid":
@@ -658,6 +664,10 @@ namespace SqlSugar
                         return this.Context.DbMehtods.GetRandom();
                     case "CharIndex":
                         return this.Context.DbMehtods.CharIndex(model);
+                    case "BitwiseAnd":
+                        return this.Context.DbMehtods.BitwiseAnd(model);
+                    case "BitwiseInclusiveOR":
+                        return this.Context.DbMehtods.BitwiseInclusiveOR(model);
                     default:
                         break;
                 }
@@ -758,7 +768,7 @@ namespace SqlSugar
                 {
                     joinStringParameter.Args.Add(new MethodCallExpressionArgs()
                     {
-                         MemberName=r.TrimStart('@')
+                        MemberName = r.TrimStart('@')
                     });
                 }
                 else
@@ -767,7 +777,7 @@ namespace SqlSugar
                     var name = base.AppendParameter(r);
                     joinStringParameter.Args.Add(new MethodCallExpressionArgs()
                     {
-                         MemberName= name
+                        MemberName = name
                     });
                 }
             }

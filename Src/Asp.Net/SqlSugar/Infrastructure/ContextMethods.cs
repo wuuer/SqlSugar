@@ -7,6 +7,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 namespace SqlSugar
 {
@@ -277,7 +278,18 @@ namespace SqlSugar
                 var typeName = tType.Name;
                 if (item.PropertyType.IsClass())
                 {
-                    result.Add(name, DataReaderToDynamicList_Part(readerValues, item, reval));
+                    if (IsJsonItem(readerValues, name))
+                    {
+                        result.Add(name, DeserializeObject<Dictionary<string, object>>(readerValues.First().Value.ObjToString()));
+                    }
+                    else if (IsJsonList(readerValues, item))
+                    {
+                        result.Add(name, DeserializeObject<List<Dictionary<string, object>>>(readerValues[item.Name.ToLower()].ToString()));
+                    }
+                    else
+                    {
+                        result.Add(name, DataReaderToDynamicList_Part(readerValues, item, reval));
+                    }
                 }
                 else
                 {
@@ -321,6 +333,25 @@ namespace SqlSugar
             }
 
             return result;
+        }
+
+        private static bool IsJsonItem(Dictionary<string, object> readerValues, string name)
+        {
+            return readerValues != null &&
+                                    readerValues.Count == 1 &&
+                                    readerValues.First().Key == name &&
+                                    readerValues.First().Value != null &&
+                                    readerValues.First().Value.GetType() == UtilConstants.StringType &&
+                                    Regex.IsMatch(readerValues.First().Value.ObjToString(), @"^\{.+\}$");
+        }
+
+        private static bool IsJsonList(Dictionary<string, object> readerValues, PropertyInfo item)
+        {
+            return item.PropertyType.FullName.IsCollectionsList() &&
+                                        readerValues.ContainsKey(item.Name.ToLower()) &&
+                                        readerValues[item.Name.ToLower()] != null &&
+                                        readerValues[item.Name.ToLower()].GetType() == UtilConstants.StringType &&
+                                        Regex.IsMatch(readerValues[item.Name.ToLower()].ToString(), @"^\[{.+\}]$");
         }
 
         private Dictionary<string, object> DataReaderToDynamicList_Part<T>(Dictionary<string, object> readerValues, PropertyInfo item, List<T> reval)

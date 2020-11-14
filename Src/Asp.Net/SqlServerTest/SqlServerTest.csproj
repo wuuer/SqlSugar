@@ -70,6 +70,7 @@
     <Compile Include="Models\Custom.cs" />
     <Compile Include="Models\EntityMapper.cs" />
     <Compile Include="Models\Mapper.cs" />
+    <Compile Include="Models\SubInsertTest.cs" />
     <Compile Include="Models\Tree.cs" />
     <Compile Include="Models\AttributeTable.cs" />
     <Compile Include="Models\Order.cs" />
@@ -78,6 +79,8 @@
     <Compile Include="Models\ViewOrder.cs" />
     <Compile Include="UnitTest\UQueue.cs" />
     <Compile Include="_OldTest\BugTest\Bug2.cs" />
+    <Compile Include="_OldTest\BugTest\Bug5.cs" />
+    <Compile Include="_OldTest\BugTest\Bug4.cs" />
     <Compile Include="_OldTest\BugTest\BugModels\AccountsModel.cs" />
     <Compile Include="_OldTest\BugTest\BugModels\ClientsModel.cs" />
     <Compile Include="_OldTest\BugTest\BugModels\ExposureModel.cs" />
@@ -91,6 +94,7 @@
     <Compile Include="_OldTest\BugTest\BugModels\TStock.cs" />
     <Compile Include="_OldTest\BugTest\BugModels\TTempStock.cs" />
     <Compile Include="_OldTest\BugTest\BugModels\VMaterialInfo.cs" />
+    <Compile Include="_OldTest\BugTest\Bug3.cs" />
     <Compile Include="_OldTest\Demos\H_Queue.cs" />
     <Compile Include="_OldTest\Demos\I_InsertOrUpdate.cs" />
     <Compile Include="_OldTest\Demos\J_Debugger.cs" />

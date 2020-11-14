@@ -171,6 +171,15 @@ namespace SqlSugar
             set { _IndexGroupNameList = value; }
         }
 
+        public string[] UIndexGroupNameList { get; set; }
+
+        private bool _IsArray;
+        public bool IsArray
+        {
+            get { return _IsArray; }
+            set { _IsArray = value; }
+        }
+
     }
 
 }

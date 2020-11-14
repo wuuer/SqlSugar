@@ -90,7 +90,10 @@ namespace SqlSugar
         }
         public virtual ISugarQueryable<T> With(string withString)
         {
-            QueryBuilder.TableWithString = withString;
+            if (this.Context.CurrentConnectionConfig.DbType == DbType.SqlServer)
+            {
+                QueryBuilder.TableWithString = withString;
+            }
             return this;
         }
 
@@ -1467,7 +1470,7 @@ namespace SqlSugar
                     {
                        new ConditionalModel()
                       {
-                           FieldName=whereCol.DbColumnName,
+                           FieldName=this.SqlBuilder.GetTranslationColumnName(whereCol.DbColumnName),
                            ConditionalType= ConditionalType.In,
                            FieldValue=string.Join(",",inValues.Distinct())
                       }
