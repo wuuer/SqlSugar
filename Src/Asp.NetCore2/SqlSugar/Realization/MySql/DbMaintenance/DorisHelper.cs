@@ -7,6 +7,35 @@ namespace SqlSugar
     internal class DorisHelper
     {
 
+        public static void UpdateDateParameter(MySqlConnector.MySqlParameter sqlParameter)
+        {
+            if (sqlParameter.DbType == System.Data.DbType.DateTime)
+            {
+                sqlParameter.DbType = System.Data.DbType.String;
+                sqlParameter.Value = sqlParameter.Value.ObjToDate().ToString("yyyy-MM-dd HH:mm:ss.fff");
+            }
+            if (sqlParameter.DbType == System.Data.DbType.DateTimeOffset)
+            {
+                sqlParameter.DbType = System.Data.DbType.String;
+                sqlParameter.Value = sqlParameter.Value.ObjToDate().ToString("yyyy-MM-dd HH:mm:ss.fff");
+            }
+        }
+        public static List<DbColumnInfo> GetColumns(List<DbColumnInfo> colums)
+        {
+            foreach (var item in colums)
+            {
+                if (item.DataType?.Contains("(") == true)
+                {
+                    item.DataType = item.DataType.Substring(0, item.DataType.IndexOf("("));
+                }
+                if (item.DataType == "tinyint" && item.Length == 4)
+                {
+                    item.Length = 1;
+                }
+            }
+            return colums;
+        }
+
         public static  bool IsDoris(ISqlSugarClient context)
         {
             return context.CurrentConnectionConfig?.MoreSettings?.DatabaseModel == DbType.Doris;

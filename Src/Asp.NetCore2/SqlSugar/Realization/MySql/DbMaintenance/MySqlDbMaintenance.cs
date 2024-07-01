@@ -40,6 +40,10 @@ namespace SqlSugar
                                     LOCATE(  'unsigned',COLUMN_type   ) >0  as IsUnsigned
                                     FROM
                                     Information_schema.columns where TABLE_NAME='{0}' and  TABLE_SCHEMA=(select database()) ORDER BY ordinal_position";
+                if (DorisHelper.IsDoris(this.Context))
+                {
+                    sql = sql.Replace("CASE WHEN  left(COLUMN_TYPE,LOCATE('(',COLUMN_TYPE)-1)='' THEN COLUMN_TYPE ELSE  left(COLUMN_TYPE,LOCATE('(',COLUMN_TYPE)-1) END   AS DataType", "COLUMN_TYPE AS DataType ");
+                }
                 return sql;
             }
         }
@@ -283,7 +287,18 @@ namespace SqlSugar
         }
         #endregion
 
-        #region Methods
+        #region Methods 
+        public override List<DbColumnInfo> GetColumnInfosByTableName(string tableName, bool isCache = true)
+        {
+            if (DorisHelper.IsDoris(this.Context))
+            {
+                var colums = base.GetColumnInfosByTableName(tableName, isCache);
+                colums= DorisHelper.GetColumns(colums);
+                return colums;
+            }
+            return base.GetColumnInfosByTableName(tableName, isCache);
+        }
+
         public override bool SetAutoIncrementInitialValue(string tableName, int initialValue)
         {
             initialValue++;
@@ -550,6 +565,10 @@ WHERE EVENT_OBJECT_TABLE = '" + tableName + "'");
             {
                 sql = $"{sql}{" COMMENT '"+ columnInfo.ColumnDescription.ToSqlFilter()+ "'  "}";
             }
+            if (DorisHelper.IsDoris(this.Context)) 
+            {
+                sql = sql.Replace(" ADD ", " ADD COLUMN ");
+            }
             this.Context.Ado.ExecuteCommand(sql);
             if (isAddNotNUll)
             {
@@ -558,14 +577,15 @@ WHERE EVENT_OBJECT_TABLE = '" + tableName + "'");
                 var dtColumInfo = dtColums.First(it => it.ColumnName.EqualCase(columnInfo.DbColumnName));
                 var type = UtilMethods.GetUnderType(dtColumInfo.DataType);
                 var value = type == UtilConstants.StringType ? (object)"" : Activator.CreateInstance(type);
-                if (this.Context.CurrentConnectionConfig.DbType == DbType.Oracle)
-                {
-                    value = columnInfo.DefaultValue;
-                    if (value.Equals(""))
-                    {
-                        value = "empty";
-                    }
-                }
+                //if (this.Context.CurrentConnectionConfig.DbType == DbType.Oracle)
+                //{
+                //    value = columnInfo.DefaultValue;
+                //    if (value.Equals(""))
+                //    {
+                //        value = "empty";
+                //    }
+                //}
+                value = GetDefaultValue(columnInfo, value);
                 var dt = new Dictionary<string, object>();
                 dt.Add(columnInfo.DbColumnName, value);
                 this.Context.Updateable(dt)
@@ -579,8 +599,13 @@ WHERE EVENT_OBJECT_TABLE = '" + tableName + "'");
         public override bool UpdateColumn(string tableName, DbColumnInfo column)
         {
             ConvertCreateColumnInfo(column);
+            if (DorisHelper.IsDoris(this.Context))
+            {
+                return DorisUpadteColumns(ref tableName, column);
+            }
             return base.UpdateColumn(tableName, column);
         }
+
 
         protected override string GetSize(DbColumnInfo item)
         {
@@ -712,6 +737,29 @@ WHERE EVENT_OBJECT_TABLE = '" + tableName + "'");
         #endregion
 
         #region Helper
+
+        private bool DorisUpadteColumns(ref string tableName, DbColumnInfo column)
+        {
+            tableName = this.SqlBuilder.GetTranslationTableName(tableName);
+            var columName = this.SqlBuilder.GetTranslationTableName(column.DbColumnName);
+            string sql = GetUpdateColumnSql(tableName, column)
+            .Replace("change  column", " MODIFY COLUMN")
+            .Replace("DEFAULT NULL ", " NULL ")
+            .Replace($"{columName} {columName}", columName);
+            try
+            {
+                this.Context.Ado.ExecuteCommand(sql);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "errCode = 2, detailMessage = Nothing is changed. please check your alter stmt.")
+                {
+                    return true;
+                }
+                throw ex;
+            }
+            return true;
+        }
         private bool ContainsCharSet(string charset)
         {
             if (this.Context.CurrentConnectionConfig.ConnectionString.ObjToString().ToLower().Contains(charset))
